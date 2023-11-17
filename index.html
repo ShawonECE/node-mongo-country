@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Countries</title>
+
+    <style>
+      .country {
+        border: 1px solid black;
+        margin: 10px;
+        width: 400px;
+      }
+
+      #container {
+        display: flex;
+      }
+    </style>
+</head>
+<body>
+    <div id="entry">
+      <h1>This is client side</h1>
+      <input type="text" id="country" placeholder="Country name">
+      <input type="text" id="capital" placeholder="capital">
+      <input type="text" id="currency" placeholder="currency">
+      <button id="addCountry">Add country</button>
+    </div>
+    <br><br><br>
+    <div id="container">
+
+    </div>
+    <script>
+      const container = document.getElementById("container");
+      fetch('http://localhost:3000')
+      .then(res => res.json())
+      .then(data => {
+        data.forEach((country) => {
+          const countryDiv = document.createElement("div");
+          countryDiv.className = 'country';
+          countryDiv.innerHTML = `<h3>${country.name}</h3><h4>${country.capital}</h4><h4>${country.currency}</h4><button onclick={handleDelete('${country._id}')}>Remove</button>`;
+          container.appendChild(countryDiv);
+        })
+      })
+
+      const handleDelete = (id) => {
+        fetch(`http://localhost:3000/delete/${id}`, {
+          method: 'DELETE',
+        })
+        .then(res => res.json())
+        .then(data => console.log(data));
+      };
+
+      const btnAddCountry = document.getElementById('addCountry');
+      btnAddCountry.addEventListener('click', () => {
+        const name = document.getElementById('country').value;
+        const capital = document.getElementById('capital').value;
+        const currency = document.getElementById('currency').value;
+
+        const country = {name, capital, currency};
+
+        fetch('http://localhost:3000/addCountry', {
+            method: 'POST',
+            body: JSON.stringify(country),
+            headers: {
+              'Content-type': 'application/json; charset=UTF-8',
+            }
+          })
+          .then(res => res.json())
+          .then(res => console.log(res));
+
+        document.getElementById('country').value = '';
+        document.getElementById('capital').value = '';
+        document.getElementById('currency').value = '';
+    });
+    </script>
+</body>
+</html>
